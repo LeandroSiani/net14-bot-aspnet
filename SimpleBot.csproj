@@ -134,6 +134,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="Data\ConnectionMongo.cs" />
+    <Compile Include="Data\MessageRepository.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
+using SimpleBot.Data;
 using SimpleBot.Logic;
 
 namespace SimpleBot
@@ -13,6 +14,7 @@ namespace SimpleBot
     public class MessagesController : ApiController
     {
         static SimpleBotUser g_bot = null;
+        static MessageRepository _message = null;
 
         public MessagesController()
         {
@@ -20,6 +22,11 @@ namespace SimpleBot
             if (g_bot == null)
             {
                 g_bot = new SimpleBotUser();
+            }     
+            
+            if (_message == null)
+            {
+                _message = new MessageRepository();
             }
         }
 
@@ -43,7 +50,7 @@ namespace SimpleBot
             string userFromName = activity.From.Name;
 
             var message = new SimpleMessage(userFromId, userFromName, text);
-
+            _message.InsertUsuario(message);
             string response = g_bot.Reply(message);
 
             await ReplyUserAsync(activity, response);
@@ -54,6 +61,7 @@ namespace SimpleBot
         {
             var connector = new ConnectorClient(new Uri(message.ServiceUrl));
             var reply = message.CreateReply(text);
+            _message.InsertBot(text);
 
             await connector.Conversations.ReplyToActivityAsync(reply);
         }
