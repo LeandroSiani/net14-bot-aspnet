@@ -12,5 +12,8 @@ namespace SimpleBot.Logic
             return $"{message.User} disse '{message.Text}";
         }
 
+   
+
+
     }
 }
