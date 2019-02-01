@@ -41,6 +41,7 @@ namespace SimpleBot.Data
             var doc = new BsonDocument();
             doc.Add("Bot", message);
             
+            ///
             col.InsertOne(doc);
         }
 
