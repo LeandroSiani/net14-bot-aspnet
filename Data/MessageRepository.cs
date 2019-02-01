@@ -78,12 +78,8 @@ namespace SimpleBot.Data
                     user.Contador = 1;
 
                 }
-                var doc = new BsonDocument();
-                doc.Add(nameof(message.Id), message.Id);
-                doc.Add(nameof(user.Contador), user.Contador);
-                doc.Add(nameof(message.User), message.User);
-                doc.Add(nameof(message.Text), message.Text);
-                col.UpdateOne(filtro, doc);
+                var update = Builders<BsonDocument>.Update.Set("Contador", user.Contador);
+                col.FindOneAndUpdateAsync(filtro, update);
             }
             return user;
         }
