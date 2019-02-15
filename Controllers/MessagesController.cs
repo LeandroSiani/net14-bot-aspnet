@@ -18,7 +18,7 @@ namespace SimpleBot
 
         public MessagesController()
         {
-            // Pattern: singleton
+            // Pattern: singleton teste
             if (g_bot == null)
             {
                 g_bot = new SimpleBotUser();
