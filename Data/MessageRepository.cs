@@ -30,7 +30,7 @@ namespace SimpleBot.Data
 
             col.InsertOne(doc);
 
-            var usu = GetProfileAsync(message);
+            var usu = ManageProfileAccess(message);
         }
 
         public void InsertBot(string message)
@@ -46,7 +46,7 @@ namespace SimpleBot.Data
         }
 
 
-        public async System.Threading.Tasks.Task<UserProfile> GetProfileAsync(SimpleMessage message)
+        public async System.Threading.Tasks.Task<UserProfile> ManageProfileAccess(SimpleMessage message)
         {
             var db = _client.GetDatabase("databaseFiap");
             var col = db.GetCollection<BsonDocument>("schema02");
@@ -59,21 +59,32 @@ namespace SimpleBot.Data
             
             if (res == null)
             {
-                user.Contador = 1;
-                var doc = new BsonDocument();
-                doc.Add(nameof(user.Id), user.Id);
-                doc.Add(nameof(user.Contador), user.Contador);                
-                col.InsertOne(doc);
+                InsertUser(col, user);
             }
             else
             {
-                user.Contador = (Int32)res.GetValue("Contador") + 1;
-                filtro = await col.FindOneAndUpdateAsync(
-                        Builders<BsonDocument>.Filter.Eq("Id", message.Id),
-                        Builders<BsonDocument>.Update.Set("Contador", user.Contador)
-                    );                
+                filtro = await UpdateUser(message, col, filtro, res, user);
             }
             return user;
+        }
+
+        private static async System.Threading.Tasks.Task<FilterDefinition<BsonDocument>> UpdateUser(SimpleMessage message, IMongoCollection<BsonDocument> col, FilterDefinition<BsonDocument> filtro, BsonDocument res, UserProfile user)
+        {
+            user.Contador = (Int32)res.GetValue("Contador") + 1;
+            filtro = await col.FindOneAndUpdateAsync(
+                    Builders<BsonDocument>.Filter.Eq("Id", message.Id),
+                    Builders<BsonDocument>.Update.Set("Contador", user.Contador)
+                );
+            return filtro;
+        }
+
+        private static void InsertUser(IMongoCollection<BsonDocument> col, UserProfile user)
+        {
+            user.Contador = 1;
+            var doc = new BsonDocument();
+            doc.Add(nameof(user.Id), user.Id);
+            doc.Add(nameof(user.Contador), user.Contador);
+            col.InsertOne(doc);
         }
 
         public int GetQtdeAcesso(string id)
