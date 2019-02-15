@@ -30,7 +30,7 @@ namespace SimpleBot.Data
 
             col.InsertOne(doc);
 
-            var usu = GetProfile(message);
+            var usu = GetProfileAsync(message);
         }
 
         public void InsertBot(string message)
@@ -46,41 +46,32 @@ namespace SimpleBot.Data
         }
 
 
-        public UserProfile GetProfile(SimpleMessage message)
+        public async System.Threading.Tasks.Task<UserProfile> GetProfileAsync(SimpleMessage message)
         {
             var db = _client.GetDatabase("databaseFiap");
-            var col = db.GetCollection<BsonDocument>("schema01");
+            var col = db.GetCollection<BsonDocument>("schema02");
 
             var filtro = Builders<BsonDocument>.Filter.Eq("Id", message.Id);
             var res = col.Find(filtro).FirstOrDefault();
 
             var user = new UserProfile();
             user.Id = message.Id;
-            if (res.Count() == 0)
+            
+            if (res == null)
             {
                 user.Contador = 1;
                 var doc = new BsonDocument();
-                doc.Add(nameof(message.Id), message.Id);
-                doc.Add(nameof(user.Contador), user.Contador);
-                doc.Add(nameof(message.User), message.User);
-                doc.Add(nameof(message.Text), message.Text);
-
+                doc.Add(nameof(user.Id), user.Id);
+                doc.Add(nameof(user.Contador), user.Contador);                
                 col.InsertOne(doc);
             }
             else
             {
-                try
-                {
-                    user.Contador = res.GetValue("Contador").AsInt32 + 1;
-
-                }
-                catch
-                {
-                    user.Contador = 1;
-
-                }
-                var update = Builders<BsonDocument>.Update.Set("Contador", user.Contador);
-                col.FindOneAndUpdateAsync(filtro, update);
+                user.Contador = (Int32)res.GetValue("Contador") + 1;
+                filtro = await col.FindOneAndUpdateAsync(
+                        Builders<BsonDocument>.Filter.Eq("Id", message.Id),
+                        Builders<BsonDocument>.Update.Set("Contador", user.Contador)
+                    );                
             }
             return user;
         }
