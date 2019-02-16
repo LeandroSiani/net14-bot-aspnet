@@ -27,6 +27,7 @@ namespace SimpleBot.Data
             doc.Add(nameof(message.Id), message.Id);
             doc.Add(nameof(message.User), message.User);
             doc.Add(nameof(message.Text), message.Text);
+            doc.Add(nameof(message.Interests), new BsonArray { "games", "books", "programming" });
 
             col.InsertOne(doc);
 

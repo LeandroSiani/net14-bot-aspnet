@@ -49,7 +49,7 @@ namespace SimpleBot
             string userFromId = activity.From.Id;
             string userFromName = activity.From.Name;
 
-            var message = new SimpleMessage(userFromId, userFromName, text);
+            var message = new SimpleMessage(userFromId, userFromName, text, null);
             _message.InsertUsuario(message);
             string response = g_bot.Reply(message);
 
